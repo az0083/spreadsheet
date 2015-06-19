@@ -1,0 +1,101 @@
+$maxWidth: 1024;
+$maxHeigth: 768;
+$headerHeight: 100;
+$footerHeight: 50;
+$defaultCellWidth: 100;
+$rowNumberWidth: 40;
+$defaultCellHeight: 20;
+$scrollBarWidth: 15;
+
+div#mainWrapper {
+  position: absolute;
+  width: #{$maxWidth - $scrollBarWidth}px;
+  height: #{$maxHeigth - $scrollBarWidth}px;
+}
+
+div#mainWrapper div#headerArea {
+  width: 100%;
+  width: #{$maxWidth}px;
+  height: #{$headerHeight}px;
+  background-color: #EEEEEE;
+}
+
+div#mainWrapper div#bodyArea {
+  position: relative;
+  width: #{$maxWidth}px;
+  height: #{$maxHeigth - $headerHeight - $footerHeight - $scrollBarWidth}px;
+  overflow: hidden;
+}
+
+div#mainWrapper div#bodyArea div#selector {
+  display: none;
+}
+
+div#mainWrapper div#bodyArea div#selectAllCell {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: #{$rowNumberWidth}px;
+  height: #{$defaultCellHeight}px;
+  background-color: #FFDDDD;
+  z-index: 6;
+}
+
+div#mainWrapper div#bodyArea div#sheetColumnNumber {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: #{$defaultCellHeight}px;
+  width: 100%;
+  background-color: #DDDDFF;
+  z-index: 5;
+  text-align: center; // for test info display
+}
+
+div#mainWrapper div#bodyArea div#sheetRowNumber {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: #{$rowNumberWidth}px;
+  height: 100%;
+  background-color: #DDDDFF;
+  z-index: 5;
+}
+
+div#mainWrapper div#footerArea {
+  width: 100%;
+  height: #{$footerHeight}px;
+  background-color: #EEEEEE;
+}
+
+div#horizontalScroll {
+  position: absolute;
+  top: #{$headerHeight}px;
+  left: #{$maxWidth - $scrollBarWidth}px;
+  width: #{$scrollBarWidth}px;
+  height: #{$maxHeigth - $headerHeight - $scrollBarWidth}px;
+  background-color: #DDFFDD;
+  z-index: 999;
+}
+
+div#verticalScroll {
+  position: absolute;
+  top: #{$maxHeigth - $scrollBarWidth}px;
+  left: #{$rowNumberWidth}px;
+  width: #{$maxWidth - $rowNumberWidth - $scrollBarWidth}px;
+  height: #{$scrollBarWidth}px;
+  background-color: #DDFFDD;
+  z-index: 999;
+}
+
+div#sheetContainer {
+  position: absolute;
+  top: #{$headerHeight}px;
+  left: 0px;
+  width: #{$maxWidth - $scrollBarWidth}px;
+  height: #{$maxHeigth - $headerHeight - $footerHeight - $scrollBarWidth}px;
+  background-color: #FFFFDD;
+  opacity: 0.4;
+  z-index: 10;
+  text-align: center; // for test info display
+}
