@@ -1,9 +1,5 @@
 (function($, _global, _d) {
   'use strict';
-  var CELL_WIDTH = 100;
-  var CELL_HEIGHT = 20;
-  var ROW_NUM_DISPLAY_WIDTH = 40;
-  var COL_NUM_DISPLAY_HEIGHT = CELL_HEIGHT;
 
   var CanvasTable = function(_dCanvasContainer) {
     this.canvas = null;
@@ -13,95 +9,101 @@
     this.init(_dCanvasContainer);
   };
 
+  CanvasTable.CELL_WIDTH = 100;
+  CanvasTable.CELL_HEIGHT = 20;
+  CanvasTable.ROW_NUM_DISPLAY_WIDTH = 40;
+  CanvasTable.COL_NUM_DISPLAY_HEIGHT = CanvasTable.CELL_HEIGHT;
+
   CanvasTable.prototype = {
     init: function(_dCanvasContainer) {
-      var _ct = this;
-      _ct.canvas = _d.createElement('canvas');
-      _ct.canvas.style.position = 'absolute';
-      _ct.canvas.style.top = 0;
-      _ct.canvas.style.left = 0;
-      _ct.canvas.width = _dCanvasContainer.offsetWidth;
-      _ct.canvas.height = _dCanvasContainer.offsetHeight;
-      _ct.cxt = _ct.canvas.getContext('2d');
-      _dCanvasContainer.appendChild(_ct.canvas);
-      _ct.drawTable();
-      _ct.fillRowNumDisplay();
-      _ct.fillColNumDisplay();
+      var ct = this;
+      ct.canvas = _d.createElement('canvas');
+      ct.canvas.style.position = 'absolute';
+      ct.canvas.style.top = 0;
+      ct.canvas.style.left = 0;
+      ct.canvas.width = _dCanvasContainer.offsetWidth;
+      ct.canvas.height = _dCanvasContainer.offsetHeight;
+      ct.cxt = ct.canvas.getContext('2d');
+      _dCanvasContainer.appendChild(ct.canvas);
+      ct.drawTable();
     },
 
     drawTable: function() {
-      var _ct = this;
-      _ct.cxt.translate(0.5, 0.5); // translate coordinates for drawing 1px line
-      _ct.cxt.lineWidth = 1;
+      var ct = this;
+      ct.cxt.translate(0.5, 0.5); // translate coordinates for drawing 1px line
+      ct.cxt.lineWidth = 1;
 
-      _ct.cxt.beginPath();
+      ct.cxt.beginPath();
 
       // draw frame
-      _ct.cxt.moveTo(0, 0);
-      _ct.cxt.lineTo(_ct.canvas.width, 0);
-      _ct.cxt.lineTo(_ct.canvas.width, _ct.canvas.height);
-      _ct.cxt.lineTo(0, _ct.canvas.height);
-      _ct.cxt.lineTo(0, 0);
+      ct.cxt.moveTo(0, 0);
+      ct.cxt.lineTo(ct.canvas.width, 0);
+      ct.cxt.lineTo(ct.canvas.width, ct.canvas.height);
+      ct.cxt.lineTo(0, ct.canvas.height);
+      ct.cxt.lineTo(0, 0);
 
       // draw horizontal line
-      for (var currentY = COL_NUM_DISPLAY_HEIGHT; currentY < _ct.canvas.height; currentY += CELL_HEIGHT) {
-        _ct.cxt.moveTo(0, currentY);
-        _ct.cxt.lineTo(_ct.canvas.width, currentY);
-        _ct.rowCount++;
+      for (var currentY = CanvasTable.COL_NUM_DISPLAY_HEIGHT; currentY < ct.canvas.height; currentY += CanvasTable.CELL_HEIGHT) {
+        ct.cxt.moveTo(0, currentY);
+        ct.cxt.lineTo(ct.canvas.width, currentY);
+        ct.rowCount++;
       }
 
       // draw vertical line
-      for (var currentX = ROW_NUM_DISPLAY_WIDTH; currentX < _ct.canvas.width; currentX += CELL_WIDTH) {
-        _ct.cxt.moveTo(currentX, 0);
-        _ct.cxt.lineTo(currentX, _ct.canvas.height);
-        _ct.colCount++;
+      for (var currentX = CanvasTable.ROW_NUM_DISPLAY_WIDTH; currentX < ct.canvas.width; currentX += CanvasTable.CELL_WIDTH) {
+        ct.cxt.moveTo(currentX, 0);
+        ct.cxt.lineTo(currentX, ct.canvas.height);
+        ct.colCount++;
       }
 
-      _ct.cxt.stroke();
+      ct.cxt.stroke();
+      ct.fillRowNumDisplay();
+      ct.fillColNumDisplay();
+      ct.cxt.closePath();
     },
 
     cellX: function(_targetCol) {
-      return _targetCol < 1 ? 0 : ROW_NUM_DISPLAY_WIDTH + CELL_WIDTH * (_targetCol - 1);
+      return _targetCol < 1 ? 0 : CanvasTable.ROW_NUM_DISPLAY_WIDTH + CanvasTable.CELL_WIDTH * (_targetCol - 1);
     },
 
     cellY: function(_targetRow) {
-      return _targetRow < 1 ? 0 : COL_NUM_DISPLAY_HEIGHT + CELL_HEIGHT * (_targetRow - 1);
+      return _targetRow < 1 ? 0 : CanvasTable.COL_NUM_DISPLAY_HEIGHT + CanvasTable.CELL_HEIGHT * (_targetRow - 1);
     },
 
     cellCenterPoint: function(_targetRow, _targetCol) {
-      var _ct = this;
+      var ct = this;
       return {
-        x: _ct.cellX(_targetCol) + (_targetCol < 1 ? ROW_NUM_DISPLAY_WIDTH / 2 : CELL_WIDTH / 2),
-        y: _ct.cellY(_targetRow) + (_targetRow < 1 ? COL_NUM_DISPLAY_HEIGHT / 2 : CELL_HEIGHT / 2)
+        x: ct.cellX(_targetCol) + (_targetCol < 1 ? CanvasTable.ROW_NUM_DISPLAY_WIDTH / 2 : CanvasTable.CELL_WIDTH / 2),
+        y: ct.cellY(_targetRow) + (_targetRow < 1 ? CanvasTable.COL_NUM_DISPLAY_HEIGHT / 2 : CanvasTable.CELL_HEIGHT / 2)
       };
     },
 
     fillTextIntoCell: function(_targetRow, _targetCol, _text, _vAlign, _hAlign) {
-      var _ct = this;
+      var ct = this;
 
-      var cellCenter = _ct.cellCenterPoint(_targetRow, _targetCol);
-      _ct.cxt.textBaseline = _vAlign || 'middle';
-      _ct.cxt.textAlign = _hAlign || 'center';
-      _ct.cxt.fillText(_text, cellCenter.x, cellCenter.y);
+      var cellCenter = ct.cellCenterPoint(_targetRow, _targetCol);
+      ct.cxt.textBaseline = _vAlign || 'middle';
+      ct.cxt.textAlign = _hAlign || 'center';
+      ct.cxt.fillText(_text, cellCenter.x, cellCenter.y);
     },
 
     fillRowNumDisplay: function() {
-      var _ct = this;
+      var ct = this;
 
-      for (var row = 1; row <= _ct.rowCount; row++) {
-        _ct.fillTextIntoCell(row, 0, row.toString());
+      for (var row = 1; row <= ct.rowCount; row++) {
+        ct.fillTextIntoCell(row, 0, row.toString());
       }
     },
 
     fillColNumDisplay: function() {
-      var _ct = this;
+      var ct = this;
 
-      for (var col = 1; col <= _ct.colCount; col++) {
-        _ct.fillTextIntoCell(0, col, _ct.colNum(col));
+      for (var col = 1; col <= ct.colCount; col++) {
+        ct.fillTextIntoCell(0, col, ct.aToZColNum(col));
       }
     },
 
-    colNum: function(_targetCol) {
+    aToZColNum: function(_targetCol) {
       if (_targetCol < 1) {
         return '';
       }
@@ -116,6 +118,27 @@
       } while(num > 0);
 
       return aToZArr.join('');
+    },
+
+    cellNumWithCoordinate: function(_coor) {
+      var ct = this;
+      var _coorInCanvas = {
+        x: _coor.x - ct.canvas.getBoundingClientRect().left,
+        y: _coor.y - ct.canvas.getBoundingClientRect().top
+      };
+
+      return {
+        row: ct.cellYWithCoorY(_coorInCanvas.y),
+        col: ct.cellXWithCoorX(_coorInCanvas.x)
+      };
+    },
+
+    cellXWithCoorX: function(_coorX) {
+      return Math.floor((_coorX - CanvasTable.ROW_NUM_DISPLAY_WIDTH) / CanvasTable.CELL_WIDTH) + 1;
+    },
+
+    cellYWithCoorY: function(_coorY) {
+      return Math.floor((_coorY - CanvasTable.COL_NUM_DISPLAY_HEIGHT) / CanvasTable.CELL_HEIGHT) + 1;
     }
   };
 

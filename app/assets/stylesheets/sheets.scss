@@ -27,8 +27,17 @@ div#mainWrapper div#bodyArea {
   overflow: hidden;
 }
 
-div#mainWrapper div#bodyArea div#selector {
+div#mainWrapper div#bodyArea div#current {
+  position: absolute;
   display: none;
+  z-index: 6;
+}
+
+div#mainWrapper div#bodyArea div#selected {
+  position: absolute;
+  background-color: #A0C3FF;
+  display: none;
+  z-index: 6;
 }
 
 div#mainWrapper div#bodyArea div#selectAllCell {
