@@ -1,4 +1,4 @@
-(function($, _global, _d) {
+(function(_global, _d) {
   'use strict';
 
   var CanvasTable = function(_dCanvasContainer) {
@@ -143,4 +143,4 @@
   };
 
   _global.CanvasTable = CanvasTable;
-})(jQuery, window, document);
+})(window, document);

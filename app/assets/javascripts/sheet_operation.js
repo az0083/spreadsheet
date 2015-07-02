@@ -1,5 +1,5 @@
 /* globals CanvasTable: true */
-(function($, _global, CanvasTable) {
+(function(_global, CanvasTable) {
   'use strict';
   var SheetOperation = function(_canvasTable, _dCurrent, _dSelected) {
     this.canvasTable = _canvasTable;
@@ -126,4 +126,4 @@
   };
 
   _global.SheetOperation = SheetOperation;
-})(jQuery, window, CanvasTable);
+})(window, CanvasTable);
