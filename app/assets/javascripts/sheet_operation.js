@@ -1,129 +1,57 @@
-/* globals CanvasTable: true */
-(function(_global, CanvasTable) {
+(function(_global) {
   'use strict';
-  var SheetOperation = function(_canvasTable, _dCurrent, _dSelected) {
+  var SheetOperation = function(_canvasTable) {
     this.canvasTable = _canvasTable;
-    this.dSelected = _dSelected;
-    this.dCurrent = _dCurrent;
     this.init();
+    return this;
   };
 
   SheetOperation.prototype = {
     init: function() {
-      this.canvasTable.canvas.addEventListener('click', this.clickHandler.bind(this), false);
+      var so = this;
+      so.canvasTable.canvas.addEventListener('click', so.clickHandler.bind(so), false);
+      _global.addEventListener('keydown', so.keydownHandler.bind(so), false);
     },
 
     clickHandler: function(e) {
       var so = this;
       var cellNum = so.canvasTable.cellNumWithCoordinate({
-        x: e.pageX,// - this.canvasTable.canvas.getBoundingClientRect().left,
-        y: e.pageY// - this.canvasTable.canvas.getBoundingClientRect().top
+        x: e.pageX,
+        y: e.pageY
       });
 
       if (cellNum.row === 0) {
         if (cellNum.col === 0) {
-          so.selectAllCells();
+          so.canvasTable.selectAllCells();
         } else {
-          so.selectCol(cellNum.col);
+          so.canvasTable.selectCol(cellNum.col);
         }
       } else if (cellNum.col === 0) {
-        so.selectRow(cellNum.row);
+        so.canvasTable.selectRow(cellNum.row);
       } else {
-        so.cellClicked(cellNum);
+        so.canvasTable.cellClicked(cellNum);
       }
     },
 
-    setCurrentCell: function(_cellNum) {
-      var cellX = this.canvasTable.cellX(_cellNum.col);
-      var cellY = this.canvasTable.cellY(_cellNum.row);
-      this.dCurrent.style.left = cellX - 1 + 'px';
-      this.dCurrent.style.top = cellY - 1 + 'px';
-      this.dCurrent.style.width = CanvasTable.CELL_WIDTH - 1 + 'px';
-      this.dCurrent.style.height = CanvasTable.CELL_HEIGHT - 1 + 'px';
-      this.dCurrent.style.display = 'block';
-    },
-
-    setSelectedCells: function(_startCellNum, _endCellNum) {
-      var leftTopCellNum = {
-        row: (_startCellNum.row > _endCellNum.row ? _endCellNum.row : _startCellNum.row),
-        col: (_startCellNum.col > _endCellNum.col ? _endCellNum.col : _startCellNum.col)
-      };
-
-      var rightBottomCellNum = {
-        row: (_endCellNum.row > _startCellNum.row ? _endCellNum.row : _startCellNum.row),
-        col: (_endCellNum.col > _startCellNum.col ? _endCellNum.col : _startCellNum.col)
-      };
-
-      var startPoint = {
-        x: this.canvasTable.cellX(leftTopCellNum.col),
-        y: this.canvasTable.cellY(leftTopCellNum.row)
-      };
-
-      var endPoint = {
-        x: this.canvasTable.cellX(rightBottomCellNum.col) + CanvasTable.CELL_WIDTH,
-        y: this.canvasTable.cellY(rightBottomCellNum.row) + CanvasTable.CELL_HEIGHT
-      };
-
-      this.dSelected.style.left = startPoint.x + 'px';
-      this.dSelected.style.top = startPoint.y + 'px';
-      this.dSelected.style.width = endPoint.x - startPoint.x + 'px';
-      this.dSelected.style.height = endPoint.y - startPoint.y + 'px';
-      this.dSelected.style.display = 'block';
-    },
-
-    clearSelectedCells: function() {
-      this.dSelected.style.display = 'none';
-    },
-
-    selectRow: function(_rowNum) {
-      // TODO: selected row num here
-      this.setCurrentCell({
-        row: _rowNum,
-        col: 1
-      });
-      this.setSelectedCells({
-        row: _rowNum,
-        col: 1
-      }, {
-        row: _rowNum,
-        col: this.canvasTable.colCount
-      });
-    },
-
-    selectCol: function(_colNum) {
-      // TODO: selected col num here
-      this.setCurrentCell({
-        row: 1,
-        col: _colNum
-      });
-      this.setSelectedCells({
-        row: 1,
-        col: _colNum
-      }, {
-        row: this.canvasTable.rowCount,
-        col: _colNum
-      });
-    },
-
-    cellClicked: function(_cellNum) {
-      this.clearSelectedCells();
-      this.setCurrentCell(_cellNum);
-    },
-
-    selectAllCells: function() {
-      this.setCurrentCell({
-        row: 1,
-        col: 1
-      });
-      this.setSelectedCells({
-        row: 1,
-        col: 1
-      }, {
-        row: this.canvasTable.rowCount,
-        col: this.canvasTable.colCount
-      });
+    keydownHandler: function(e) {
+      var so = this;
+      switch (e.keyCode) {
+        // TODO: add model judgment
+        case 38: // up
+          so.canvasTable.currentVMove(-1);
+          break;
+        case 40: // down
+          so.canvasTable.currentVMove(1);
+          break;
+        case 37: // left
+          so.canvasTable.currentHMove(-1);
+          break;
+        case 39: // right
+          so.canvasTable.currentHMove(1);
+          break;
+      }
     }
   };
 
   _global.SheetOperation = SheetOperation;
-})(window, CanvasTable);
+})(window);

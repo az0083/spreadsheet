@@ -1,12 +1,14 @@
 (function(_global, _d) {
   'use strict';
-
-  var CanvasTable = function(_dCanvasContainer) {
+  var CanvasTable = function(_dCanvasContainer, _dCurrent, _dSelected) {
     this.canvas = null;
     this.cxt = null;
     this.rowCount = 0;
     this.colCount = 0;
+    this.dSelected = _dSelected;
+    this.dCurrent = _dCurrent;
     this.init(_dCanvasContainer);
+    return this;
   };
 
   CanvasTable.CELL_WIDTH = 100;
@@ -34,7 +36,6 @@
       ct.cxt.lineWidth = 1;
 
       ct.cxt.beginPath();
-
       // draw frame
       ct.cxt.moveTo(0, 0);
       ct.cxt.lineTo(ct.canvas.width, 0);
@@ -139,6 +140,149 @@
 
     cellYWithCoorY: function(_coorY) {
       return Math.floor((_coorY - CanvasTable.COL_NUM_DISPLAY_HEIGHT) / CanvasTable.CELL_HEIGHT) + 1;
+    },
+
+    setCurrentCell: function(_cellNum) {
+      var ct = this;
+      var cellX = ct.cellX(_cellNum.col);
+      var cellY = ct.cellY(_cellNum.row);
+      ct.dCurrent.style.left = cellX - 1 + 'px';
+      ct.dCurrent.style.top = cellY - 1 + 'px';
+      ct.dCurrent.style.width = CanvasTable.CELL_WIDTH - 1 + 'px';
+      ct.dCurrent.style.height = CanvasTable.CELL_HEIGHT - 1 + 'px';
+      ct.dCurrent.style.display = 'block';
+      ct.dCurrent.dataset.row = _cellNum.row;
+      ct.dCurrent.dataset.col = _cellNum.col;
+    },
+
+    setSelectedCells: function(_startCellNum, _endCellNum) {
+      var ct = this;
+      var leftTopCellNum = {
+        row: (_startCellNum.row > _endCellNum.row ? _endCellNum.row : _startCellNum.row),
+        col: (_startCellNum.col > _endCellNum.col ? _endCellNum.col : _startCellNum.col)
+      };
+
+      var rightBottomCellNum = {
+        row: (_endCellNum.row > _startCellNum.row ? _endCellNum.row : _startCellNum.row),
+        col: (_endCellNum.col > _startCellNum.col ? _endCellNum.col : _startCellNum.col)
+      };
+
+      var startPoint = {
+        x: ct.cellX(leftTopCellNum.col),
+        y: ct.cellY(leftTopCellNum.row)
+      };
+
+      var endPoint = {
+        x: ct.cellX(rightBottomCellNum.col) + CanvasTable.CELL_WIDTH,
+        y: ct.cellY(rightBottomCellNum.row) + CanvasTable.CELL_HEIGHT
+      };
+
+      ct.dSelected.style.left = startPoint.x + 'px';
+      ct.dSelected.style.top = startPoint.y + 'px';
+      ct.dSelected.style.width = endPoint.x - startPoint.x + 'px';
+      ct.dSelected.style.height = endPoint.y - startPoint.y + 'px';
+      ct.dSelected.style.display = 'block';
+    },
+
+    clearSelectedCells: function() {
+      var ct = this;
+      ct.dSelected.style.display = 'none';
+    },
+
+    selectRow: function(_rowNum) {
+      var ct = this;
+      // TODO: select row num here
+      ct.setCurrentCell({
+        row: _rowNum,
+        col: 1
+      });
+      ct.setSelectedCells({
+        row: _rowNum,
+        col: 1
+      }, {
+        row: _rowNum,
+        col: ct.colCount
+      });
+    },
+
+    selectCol: function(_colNum) {
+      var ct = this;
+      // TODO: select col num here
+      ct.setCurrentCell({
+        row: 1,
+        col: _colNum
+      });
+      ct.setSelectedCells({
+        row: 1,
+        col: _colNum
+      }, {
+        row: ct.rowCount,
+        col: _colNum
+      });
+    },
+
+    cellClicked: function(_cellNum) {
+      var ct = this;
+      ct.clearSelectedCells();
+      ct.setCurrentCell(_cellNum);
+    },
+
+    selectAllCells: function() {
+      var ct = this;
+      ct.setCurrentCell({
+        row: 1,
+        col: 1
+      });
+      ct.setSelectedCells({
+        row: 1,
+        col: 1
+      }, {
+        row: ct.rowCount,
+        col: ct.colCount
+      });
+    },
+
+    currentVMove: function(_offset) {
+      var ct = this;
+      if (!ct.isCurrentShown()) {
+        return false;
+      }
+
+      if (_offset < 0 && ct.isCurrentInRow(1) || _offset > 0 && ct.isCurrentInRow(ct.rowCount) || _offset === 0) {
+        return false;
+      }
+
+      ct.dCurrent.style.top = ct.dCurrent.offsetTop + CanvasTable.CELL_HEIGHT * _offset + 'px';
+      ct.dCurrent.dataset.row = Number(ct.dCurrent.dataset.row) + _offset;
+    },
+
+    currentHMove: function(_offset) {
+      var ct = this;
+      if (!ct.isCurrentShown()) {
+        return false;
+      }
+
+      if (_offset < 0 && ct.isCurrentInCol(1) || _offset > 0 && ct.isCurrentInCol(ct.colCount) || _offset === 0) {
+        return false;
+      }
+
+      ct.dCurrent.style.left = ct.dCurrent.offsetLeft + CanvasTable.CELL_WIDTH * _offset + 'px';
+      ct.dCurrent.dataset.col = Number(ct.dCurrent.dataset.col) + _offset;
+    },
+
+    isCurrentShown: function() {
+      var ct = this;
+      return ct.dCurrent.style.display === 'block';
+    },
+
+    isCurrentInRow: function(_rowNum) {
+      var ct = this;
+      return ct.dCurrent.dataset.row === _rowNum.toString();
+    },
+
+    isCurrentInCol: function(_colNum) {
+      var ct = this;
+      return ct.dCurrent.dataset.col === _colNum.toString();
     }
   };
 

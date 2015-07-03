@@ -2,7 +2,11 @@
 (function($, _global, _d) {
   'use strict';
   $(_global).load(function() {
-    var canvasTable = new CanvasTable(_d.getElementById('sheetContainer'));
-    new SheetOperation(canvasTable, _d.getElementById('current'), _d.getElementById('selected'));
+    var canvasTable = new CanvasTable(
+        _d.getElementById('sheetContainer'),
+        _d.getElementById('current'),
+        _d.getElementById('selected')
+        );
+    new SheetOperation(canvasTable);
   });
 })(jQuery, window, document);
