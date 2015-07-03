@@ -248,6 +248,8 @@
         return false;
       }
 
+      ct.clearSelectedCells();
+
       if (_offset < 0 && ct.isCurrentInRow(1) || _offset > 0 && ct.isCurrentInRow(ct.rowCount) || _offset === 0) {
         return false;
       }
@@ -261,6 +263,8 @@
       if (!ct.isCurrentShown()) {
         return false;
       }
+
+      ct.clearSelectedCells();
 
       if (_offset < 0 && ct.isCurrentInCol(1) || _offset > 0 && ct.isCurrentInCol(ct.colCount) || _offset === 0) {
         return false;
