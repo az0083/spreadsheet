@@ -9,11 +9,11 @@
   SheetOperation.prototype = {
     init: function() {
       var so = this;
-      so.canvasTable.canvas.addEventListener('click', so.clickHandler.bind(so), false);
+      so.canvasTable.canvas.addEventListener('mousedown', so.mousedownHandler.bind(so), false);
       _global.addEventListener('keydown', so.keydownHandler.bind(so), false);
     },
 
-    clickHandler: function(e) {
+    mousedownHandler: function(e) {
       var so = this;
       var cellNum = so.canvasTable.cellNumWithCoordinate({
         x: e.pageX,
@@ -21,16 +21,50 @@
       });
 
       if (cellNum.row === 0) {
-        if (cellNum.col === 0) {
+        if (cellNum.col === 0) { // select all
           so.canvasTable.selectAllCells();
-        } else {
+        } else { // select col
+          // TODO: set multiple cols select event here
           so.canvasTable.selectCol(cellNum.col);
         }
-      } else if (cellNum.col === 0) {
+      } else if (cellNum.col === 0) { // select row
+        // TODO: set multiple rows select event here
         so.canvasTable.selectRow(cellNum.row);
-      } else {
+      } else { // select cell
         so.canvasTable.cellClicked(cellNum);
+        // set binded handler for removing event listener
+        so.bindedMousemoveHandler = so.mousemoveHandler.bind(so, cellNum);
+        so.bindedMouseupHandler = so.mouseupHandler.bind(so, cellNum);
+        _global.addEventListener('mouseup', so.bindedMouseupHandler, false);
+        _global.addEventListener('mousemove', so.bindedMousemoveHandler, false);
       }
+    },
+
+    mouseupHandler: function(_downCellNum, e) {
+      var so = this;
+
+      _global.removeEventListener('mousemove', so.bindedMousemoveHandler, false);
+      _global.removeEventListener('mouseup', so.bindedMouseupHandler, false);
+      so.bindedMousemoveHandler = null;
+      so.bindedMouseupHandler = null;
+
+      var currentCellNum = so.canvasTable.cellNumWithCoordinate({
+        x: e.pageX,
+        y: e.pageY
+      });
+
+      so.canvasTable.setSelectedCells(_downCellNum, currentCellNum);
+    },
+
+    mousemoveHandler: function(_downCellNum, e) {
+      var so = this;
+
+      var currentCellNum = so.canvasTable.cellNumWithCoordinate({
+        x: e.pageX,
+        y: e.pageY
+      });
+
+      so.canvasTable.setSelectedCells(_downCellNum, currentCellNum);
     },
 
     keydownHandler: function(e) {

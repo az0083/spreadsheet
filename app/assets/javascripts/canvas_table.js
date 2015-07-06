@@ -157,6 +157,12 @@
 
     setSelectedCells: function(_startCellNum, _endCellNum) {
       var ct = this;
+
+      if (_startCellNum.row === _endCellNum.row && _startCellNum.col === _endCellNum.col) {
+        ct.clearSelectedCells();
+        return false;
+      }
+
       var leftTopCellNum = {
         row: (_startCellNum.row > _endCellNum.row ? _endCellNum.row : _startCellNum.row),
         col: (_startCellNum.col > _endCellNum.col ? _endCellNum.col : _startCellNum.col)
