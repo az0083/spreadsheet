@@ -24,20 +24,25 @@
         if (cellNum.col === 0) { // select all
           so.canvasTable.selectAllCells();
         } else { // select col
-          // TODO: set multiple cols select event here
-          so.canvasTable.selectCol(cellNum.col);
+          so.setMouseDownAndUpEventWithDownCellNum(cellNum);
+          so.canvasTable.selectCols(cellNum.col, cellNum.col);
         }
       } else if (cellNum.col === 0) { // select row
-        // TODO: set multiple rows select event here
-        so.canvasTable.selectRow(cellNum.row);
+        so.setMouseDownAndUpEventWithDownCellNum(cellNum);
+        so.canvasTable.selectRows(cellNum.row, cellNum.row);
       } else { // select cell
         so.canvasTable.cellClicked(cellNum);
         // set binded handler for removing event listener
-        so.bindedMousemoveHandler = so.mousemoveHandler.bind(so, cellNum);
-        so.bindedMouseupHandler = so.mouseupHandler.bind(so, cellNum);
-        _global.addEventListener('mouseup', so.bindedMouseupHandler, false);
-        _global.addEventListener('mousemove', so.bindedMousemoveHandler, false);
+        so.setMouseDownAndUpEventWithDownCellNum(cellNum);
       }
+    },
+
+    setMouseDownAndUpEventWithDownCellNum: function(_downCellNum) {
+      var so = this;
+      so.bindedMousemoveHandler = so.mousemoveHandler.bind(so, _downCellNum);
+      so.bindedMouseupHandler = so.mouseupHandler.bind(so, _downCellNum);
+      _global.addEventListener('mouseup', so.bindedMouseupHandler, false);
+      _global.addEventListener('mousemove', so.bindedMousemoveHandler, false);
     },
 
     mouseupHandler: function(_downCellNum, e) {
@@ -53,7 +58,7 @@
         y: e.pageY
       });
 
-      so.canvasTable.setSelectedCells(_downCellNum, currentCellNum);
+      so.selectOperationWithDownAndCurrentCellNums(_downCellNum, currentCellNum);
     },
 
     mousemoveHandler: function(_downCellNum, e) {
@@ -64,7 +69,19 @@
         y: e.pageY
       });
 
-      so.canvasTable.setSelectedCells(_downCellNum, currentCellNum);
+      so.selectOperationWithDownAndCurrentCellNums(_downCellNum, currentCellNum);
+    },
+
+    selectOperationWithDownAndCurrentCellNums: function(_downCellNum, _currentCellNum) {
+      var so = this;
+
+      if (_downCellNum.row === 0) { // mouse down at col num
+        so.canvasTable.selectCols(_downCellNum.col, _currentCellNum.col);
+      } else if (_downCellNum.col === 0) { // mouse down at row num
+        so.canvasTable.selectRows(_downCellNum.row, _currentCellNum.row);
+      } else { // mouse down at cell
+        so.canvasTable.setSelectedCells(_downCellNum, _currentCellNum);
+      }
     },
 
     keydownHandler: function(e) {

@@ -1,12 +1,13 @@
 (function(_global, _d) {
   'use strict';
-  var CanvasTable = function(_dCanvasContainer, _dCurrent, _dSelected) {
+  var CanvasTable = function(_dCanvasContainer, _dCurrent, _dSelected, _dNumberSelected) {
     this.canvas = null;
     this.cxt = null;
     this.rowCount = 0;
     this.colCount = 0;
     this.dSelected = _dSelected;
     this.dCurrent = _dCurrent;
+    this.dNumberSelected = _dNumberSelected;
     this.init(_dCanvasContainer);
     return this;
   };
@@ -144,8 +145,8 @@
 
     setCurrentCell: function(_cellNum) {
       var ct = this;
-      var cellX = ct.cellX(_cellNum.col);
-      var cellY = ct.cellY(_cellNum.row);
+      var cellX = ct.cellX(_cellNum.col < 1 ? 1 : _cellNum.col);
+      var cellY = ct.cellY(_cellNum.row < 1 ? 1 : _cellNum.row);
       ct.dCurrent.style.left = cellX - 1 + 'px';
       ct.dCurrent.style.top = cellY - 1 + 'px';
       ct.dCurrent.style.width = CanvasTable.CELL_WIDTH - 1 + 'px';
@@ -173,6 +174,11 @@
         col: (_endCellNum.col > _startCellNum.col ? _endCellNum.col : _startCellNum.col)
       };
 
+      leftTopCellNum.row = leftTopCellNum.row < 1 ? 1 : leftTopCellNum.row;
+      leftTopCellNum.col = leftTopCellNum.col < 1 ? 1 : leftTopCellNum.col;
+      rightBottomCellNum.row = rightBottomCellNum.row < 1 ? 1 : rightBottomCellNum.row;
+      rightBottomCellNum.col = rightBottomCellNum.col < 1 ? 1 : rightBottomCellNum.col;
+
       var startPoint = {
         x: ct.cellX(leftTopCellNum.col),
         y: ct.cellY(leftTopCellNum.row)
@@ -190,40 +196,65 @@
       ct.dSelected.style.display = 'block';
     },
 
+    setSelectedNumbers: function(_numberType, _start, _end) {
+      var ct = this;
+
+      switch(_numberType) {
+        case 'row':
+          ct.dNumberSelected.style.left = '0px';
+          ct.dNumberSelected.style.top = ct.cellY(Math.min(_start, _end)) + 'px';
+          ct.dNumberSelected.style.width = CanvasTable.ROW_NUM_DISPLAY_WIDTH + 'px';
+          ct.dNumberSelected.style.height = (Math.abs(_end - _start) + 1) * CanvasTable.CELL_HEIGHT + 'px';
+          ct.dNumberSelected.style.display = 'block';
+          break;
+        case 'col':
+          ct.dNumberSelected.style.left = ct.cellX(Math.min(_start, _end)) + 'px';
+          ct.dNumberSelected.style.top = '0px';
+          ct.dNumberSelected.style.width = (Math.abs(_end - _start) + 1) * CanvasTable.CELL_WIDTH + 'px';
+          ct.dNumberSelected.style.height = CanvasTable.COL_NUM_DISPLAY_HEIGHT + 'px';
+          ct.dNumberSelected.style.display = 'block';
+          break;
+        default:
+          ct.dNumberSelected.style.display = 'none';
+          break;
+      }
+    },
+
     clearSelectedCells: function() {
       var ct = this;
       ct.dSelected.style.display = 'none';
+      ct.dNumberSelected.style.display = 'none';
     },
 
-    selectRow: function(_rowNum) {
+    selectRows: function(_startRowNum, _endRowNum) {
       var ct = this;
-      // TODO: select row num here
+      ct.setSelectedNumbers('row', _startRowNum, _endRowNum);
       ct.setCurrentCell({
-        row: _rowNum,
+        row: _startRowNum,
         col: 1
       });
       ct.setSelectedCells({
-        row: _rowNum,
+        row: _startRowNum,
         col: 1
       }, {
-        row: _rowNum,
+        row: _endRowNum,
         col: ct.colCount
       });
     },
 
-    selectCol: function(_colNum) {
+    selectCols: function(_startColNum, _endColNum) {
       var ct = this;
-      // TODO: select col num here
+      ct.setSelectedNumbers('col', _startColNum, _endColNum);
       ct.setCurrentCell({
         row: 1,
-        col: _colNum
+        col: _startColNum
       });
       ct.setSelectedCells({
         row: 1,
-        col: _colNum
+        col: _startColNum
       }, {
         row: ct.rowCount,
-        col: _colNum
+        col: _endColNum
       });
     },
 

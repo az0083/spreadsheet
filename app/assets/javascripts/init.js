@@ -5,7 +5,8 @@
     var canvasTable = new CanvasTable(
         _d.getElementById('sheetContainer'),
         _d.getElementById('current'),
-        _d.getElementById('selected')
+        _d.getElementById('selected'),
+        _d.getElementById('numberSelected')
         );
     new SheetOperation(canvasTable);
   });

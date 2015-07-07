@@ -41,6 +41,13 @@ div#mainWrapper div#bodyArea div#selected {
   z-index: 6;
 }
 
+div#mainWrapper div#bodyArea div#numberSelected {
+  position: absolute;
+  background-color: #DDDDDD;
+  display: none;
+  z-index: 6;
+}
+
 div#mainWrapper div#bodyArea div#selectAllCell {
   position: absolute;
   top: 0px;
@@ -57,7 +64,7 @@ div#mainWrapper div#bodyArea div#sheetColumnNumber {
   left: 0px;
   height: #{$defaultCellHeight}px;
   width: 100%;
-  background-color: #DDDDFF;
+  background-color: #EEEEEE;
   z-index: 5;
   text-align: center; // for test info display
 }
@@ -68,7 +75,7 @@ div#mainWrapper div#bodyArea div#sheetRowNumber {
   left: 0px;
   width: #{$rowNumberWidth}px;
   height: 100%;
-  background-color: #DDDDFF;
+  background-color: #EEEEEE;
   z-index: 5;
 }
 
