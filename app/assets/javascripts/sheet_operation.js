@@ -100,6 +100,10 @@
         case 39: // right
           so.canvasTable.currentHMove(1);
           break;
+        default:
+          // activate input elem
+          so.canvasTable.showInputContainer();
+          break;
       }
     }
   };

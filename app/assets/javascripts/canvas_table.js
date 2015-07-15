@@ -1,40 +1,55 @@
 (function(_global, _d) {
   'use strict';
-  var CanvasTable = function(_dCanvasContainer, _dCurrent, _dSelected, _dNumberSelected) {
+  var CanvasTable = function() {
     this.canvas = null;
     this.cxt = null;
     this.rowCount = 0;
     this.colCount = 0;
-    this.dSelected = _dSelected;
-    this.dCurrent = _dCurrent;
-    this.dNumberSelected = _dNumberSelected;
-    this.init(_dCanvasContainer);
+    this.dSelected = null;
+    this.dCurrent = null;
+    this.dNumberSelected = null;
+    this.dInputContainer = null;
+    this.dInputElem = null;
+    this.init();
     return this;
   };
 
+  CanvasTable.BORDER_WIDTH = 1;
   CanvasTable.CELL_WIDTH = 100;
   CanvasTable.CELL_HEIGHT = 20;
   CanvasTable.ROW_NUM_DISPLAY_WIDTH = 40;
   CanvasTable.COL_NUM_DISPLAY_HEIGHT = CanvasTable.CELL_HEIGHT;
 
   CanvasTable.prototype = {
-    init: function(_dCanvasContainer) {
+    init: function() {
       var ct = this;
+      ct.dSelected = _d.getElementById('selected');
+      ct.dCurrent = _d.getElementById('current');
+      ct.dNumberSelected = _d.getElementById('numberSelected');
+      ct.dInputContainer = _d.getElementById('inputContainer');
+      ct.dInputElem = _d.createElement('div');
+      ct.dInputElem.contentEditable = true;
+      ct.dInputElem.tabIndex = 0;
+      ct.dInputContainer.appendChild(ct.dInputElem);
+
+      // init canvas and draw table in canvas
+      var dCanvasContainer = _d.getElementById('sheetContainer');
       ct.canvas = _d.createElement('canvas');
       ct.canvas.style.position = 'absolute';
       ct.canvas.style.top = 0;
       ct.canvas.style.left = 0;
-      ct.canvas.width = _dCanvasContainer.offsetWidth;
-      ct.canvas.height = _dCanvasContainer.offsetHeight;
+      ct.canvas.width = dCanvasContainer.offsetWidth;
+      ct.canvas.height = dCanvasContainer.offsetHeight;
       ct.cxt = ct.canvas.getContext('2d');
-      _dCanvasContainer.appendChild(ct.canvas);
+      dCanvasContainer.appendChild(ct.canvas);
       ct.drawTable();
     },
 
     drawTable: function() {
       var ct = this;
       ct.cxt.translate(0.5, 0.5); // translate coordinates for drawing 1px line
-      ct.cxt.lineWidth = 1;
+      ct.cxt.lineWidth = CanvasTable.BORDER_WIDTH;
+      ct.cxt.font = '14px arial, sans-serif';
 
       ct.cxt.beginPath();
       // draw frame
@@ -83,10 +98,20 @@
     fillTextIntoCell: function(_targetRow, _targetCol, _text, _vAlign, _hAlign) {
       var ct = this;
 
+      ct.clearTextInCell(_targetRow, _targetCol);
       var cellCenter = ct.cellCenterPoint(_targetRow, _targetCol);
       ct.cxt.textBaseline = _vAlign || 'middle';
       ct.cxt.textAlign = _hAlign || 'center';
       ct.cxt.fillText(_text, cellCenter.x, cellCenter.y);
+    },
+
+    clearTextInCell: function(_targetRow, _targetCol) {
+      var ct = this;
+      var cellX = ct.cellX(_targetCol) + CanvasTable.BORDER_WIDTH;
+      var cellY = ct.cellY(_targetRow) + CanvasTable.BORDER_WIDTH;
+      var cellWidth = (_targetCol < 1 ? CanvasTable.ROW_NUM_DISPLAY_WIDTH : CanvasTable.CELL_WIDTH) - CanvasTable.BORDER_WIDTH * 2;
+      var cellHeight = (_targetRow < 1 ? CanvasTable.COL_NUM_DISPLAY_HEIGHT : CanvasTable.CELL_HEIGHT) - CanvasTable.BORDER_WIDTH * 2;
+      ct.cxt.clearRect(cellX, cellY, cellWidth, cellHeight);
     },
 
     fillRowNumDisplay: function() {
@@ -147,10 +172,10 @@
       var ct = this;
       var cellX = ct.cellX(_cellNum.col < 1 ? 1 : _cellNum.col);
       var cellY = ct.cellY(_cellNum.row < 1 ? 1 : _cellNum.row);
-      ct.dCurrent.style.left = cellX - 1 + 'px';
-      ct.dCurrent.style.top = cellY - 1 + 'px';
-      ct.dCurrent.style.width = CanvasTable.CELL_WIDTH - 1 + 'px';
-      ct.dCurrent.style.height = CanvasTable.CELL_HEIGHT - 1 + 'px';
+      ct.dCurrent.style.left = cellX - CanvasTable.BORDER_WIDTH + 'px';
+      ct.dCurrent.style.top = cellY - CanvasTable.BORDER_WIDTH + 'px';
+      ct.dCurrent.style.width = CanvasTable.CELL_WIDTH - CanvasTable.BORDER_WIDTH + 'px';
+      ct.dCurrent.style.height = CanvasTable.CELL_HEIGHT - CanvasTable.BORDER_WIDTH + 'px';
       ct.dCurrent.style.display = 'block';
       ct.dCurrent.dataset.row = _cellNum.row;
       ct.dCurrent.dataset.col = _cellNum.col;
@@ -160,7 +185,7 @@
       var ct = this;
 
       if (_startCellNum.row === _endCellNum.row && _startCellNum.col === _endCellNum.col) {
-        ct.clearSelectedCells();
+        ct.clearAllDisplayElems();
         return false;
       }
 
@@ -215,19 +240,31 @@
           ct.dNumberSelected.style.display = 'block';
           break;
         default:
-          ct.dNumberSelected.style.display = 'none';
+          ct.hideNumberSelected();
           break;
       }
     },
 
-    clearSelectedCells: function() {
+    clearAllDisplayElems: function() {
+      var ct = this;
+      ct.hideSelected();
+      ct.hideNumberSelected();
+      ct.hideInputContainer();
+    },
+
+    hideSelected: function() {
       var ct = this;
       ct.dSelected.style.display = 'none';
+    },
+
+    hideNumberSelected: function() {
+      var ct = this;
       ct.dNumberSelected.style.display = 'none';
     },
 
     selectRows: function(_startRowNum, _endRowNum) {
       var ct = this;
+      ct.clearAllDisplayElems();
       ct.setSelectedNumbers('row', _startRowNum, _endRowNum);
       ct.setCurrentCell({
         row: _startRowNum,
@@ -244,6 +281,7 @@
 
     selectCols: function(_startColNum, _endColNum) {
       var ct = this;
+      ct.clearAllDisplayElems();
       ct.setSelectedNumbers('col', _startColNum, _endColNum);
       ct.setCurrentCell({
         row: 1,
@@ -260,12 +298,13 @@
 
     cellClicked: function(_cellNum) {
       var ct = this;
-      ct.clearSelectedCells();
+      ct.clearAllDisplayElems();
       ct.setCurrentCell(_cellNum);
     },
 
     selectAllCells: function() {
       var ct = this;
+      ct.clearAllDisplayElems();
       ct.setCurrentCell({
         row: 1,
         col: 1
@@ -285,7 +324,7 @@
         return false;
       }
 
-      ct.clearSelectedCells();
+      ct.clearAllDisplayElems();
 
       if (_offset < 0 && ct.isCurrentInRow(1) || _offset > 0 && ct.isCurrentInRow(ct.rowCount) || _offset === 0) {
         return false;
@@ -301,7 +340,7 @@
         return false;
       }
 
-      ct.clearSelectedCells();
+      ct.clearAllDisplayElems();
 
       if (_offset < 0 && ct.isCurrentInCol(1) || _offset > 0 && ct.isCurrentInCol(ct.colCount) || _offset === 0) {
         return false;
@@ -324,6 +363,24 @@
     isCurrentInCol: function(_colNum) {
       var ct = this;
       return ct.dCurrent.dataset.col === _colNum.toString();
+    },
+
+    showInputContainer: function() {
+      var ct = this;
+      ct.dInputContainer.style.cssText = ct.dCurrent.style.cssText;
+      ct.dInputElem.focus();
+    },
+
+    hideInputContainer: function() {
+      var ct = this;
+      ct.dInputContainer.style.display = 'none';
+      ct.fillTextIntoCell(ct.dCurrent.dataset.row, ct.dCurrent.dataset.col, ct.dInputElem.innerHTML);
+      ct.clearInputElem();
+    },
+
+    clearInputElem: function() {
+      var ct = this;
+      ct.dInputElem.innerHTML = '';
     }
   };
 
