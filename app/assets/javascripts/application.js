@@ -12,4 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require key_map
+//= require settings
 //= require_tree .

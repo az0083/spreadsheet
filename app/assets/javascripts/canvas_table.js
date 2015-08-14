@@ -1,4 +1,5 @@
-(function(_global, _d) {
+/* global SheetDataManager: false, SETTINGS: false */
+(function(_global, _d, SETTINGS) {
   'use strict';
   var CanvasTable = function() {
     this.canvas = null;
@@ -10,6 +11,7 @@
     this.dNumberSelected = null;
     this.dInputContainer = null;
     this.dInputElem = null;
+    this.sheetDataManager = null;
     this.init();
     return this;
   };
@@ -27,6 +29,7 @@
       ct.dCurrent = _d.getElementById('current');
       ct.dNumberSelected = _d.getElementById('numberSelected');
       ct.dInputContainer = _d.getElementById('inputContainer');
+      //ct.setInputContainerModeAs('select');
       ct.dInputElem = _d.createElement('div');
       ct.dInputElem.contentEditable = true;
       ct.dInputElem.tabIndex = 0;
@@ -43,6 +46,9 @@
       ct.cxt = ct.canvas.getContext('2d');
       dCanvasContainer.appendChild(ct.canvas);
       ct.drawTable();
+
+      // init sheet data structure
+      ct.sheetDataManager = new SheetDataManager(ct.rowCount, ct.colCount);
     },
 
     drawTable: function() {
@@ -102,7 +108,7 @@
       var cellCenter = ct.cellCenterPoint(_targetRow, _targetCol);
       ct.cxt.textBaseline = _vAlign || 'middle';
       ct.cxt.textAlign = _hAlign || 'center';
-      ct.cxt.fillText(_text, cellCenter.x, cellCenter.y);
+      ct.cxt.fillText(_text.replace('<br>', "\n", 'g'), cellCenter.x, cellCenter.y);
     },
 
     clearTextInCell: function(_targetRow, _targetCol) {
@@ -249,7 +255,7 @@
       var ct = this;
       ct.hideSelected();
       ct.hideNumberSelected();
-      ct.hideInputContainer();
+      ct.hideInputContainer(SETTINGS.SAVE_DATA);
     },
 
     hideSelected: function() {
@@ -368,21 +374,49 @@
     showInputContainer: function() {
       var ct = this;
       ct.dInputContainer.style.cssText = ct.dCurrent.style.cssText;
+      //ct.setInputContainerModeAs('input');
       ct.dInputElem.focus();
+      ct.dInputElem.innerHTML = ct.sheetDataManager.getCellValue({
+        row: ct.dCurrent.dataset.row,
+        col: ct.dCurrent.dataset.col
+      });
     },
 
-    hideInputContainer: function() {
+    hideInputContainer: function(_willSaveData) {
       var ct = this;
+
+      if (ct.dInputContainer.style.display === 'none'){
+        return;
+      }
+
       ct.dInputContainer.style.display = 'none';
-      ct.fillTextIntoCell(ct.dCurrent.dataset.row, ct.dCurrent.dataset.col, ct.dInputElem.innerHTML);
+      //ct.setInputContainerModeAs('select');
+
+      if (!ct.dCurrent.dataset.row || !ct.dCurrent.dataset.col) {
+        return;
+      }
+
+      if (_willSaveData) {
+        ct.fillTextIntoCell(ct.dCurrent.dataset.row, ct.dCurrent.dataset.col, ct.dInputElem.innerHTML);
+        ct.sheetDataManager.updateCellValue({
+          row: ct.dCurrent.dataset.row,
+          col: ct.dCurrent.dataset.col
+        }, ct.dInputElem.innerHTML);
+      }
+
       ct.clearInputElem();
     },
 
     clearInputElem: function() {
       var ct = this;
       ct.dInputElem.innerHTML = '';
-    }
+    },
+
+    //setInputContainerModeAs: function(_mode) {
+    //  var ct = this;
+    //  ct.dInputContainer.className = _mode || 'select';
+    //}
   };
 
   _global.CanvasTable = CanvasTable;
-})(window, document);
+})(window, document, SETTINGS);
